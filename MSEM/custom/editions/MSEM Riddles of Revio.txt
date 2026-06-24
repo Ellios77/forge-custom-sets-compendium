@@ -3,7 +3,7 @@ Code=MSEM_RVO
 Name=Riddles of Revio
 Date=2021-07-01
 Type=Custom
-# Booster=10 Common, 3 Uncommon, 1 RareMythic, 1 BasicLand
+Booster=10 Common, 3 Uncommon, 1 RareMythic, 1 BasicLand
 
 [cards]
 1 R Admonish @Remi Roundtree
@@ -297,3 +297,12 @@ Type=Custom
 14 emblem_eve_the_mastermind @Anna Podedworna
 15 emblem_naiala_the_informant @Anastasia Kustova
 16 emblem_tara_duneblessed @Denis Fröhlich
+
+[CreatureTypes]
+Merchant:Merchants
+
+[WalkerTypes]
+Ciel
+Eve
+Naiala
+Tara
