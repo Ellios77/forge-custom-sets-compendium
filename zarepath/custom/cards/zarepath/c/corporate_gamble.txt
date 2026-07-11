@@ -11,6 +11,6 @@ SVar:CleanupHeads:DB$ StoreSVar | SVar$ HeadsCount | Type$ Number | Expression$ 
 SVar:CleanupTails:DB$ StoreSVar | SVar$ TailsCount | Type$ Number | Expression$ 0
 
 SVar:HeadsCount:Number$0
-SVar:TailsCount:Number$
+SVar:TailsCount:Number$0
 
 Oracle:Flip ten coins. Target opponent sacrifices a permanent for each coin that comes up heads, then you sacrifice a permanent for each coin that comes up tails.
