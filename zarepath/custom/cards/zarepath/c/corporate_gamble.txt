@@ -2,8 +2,15 @@ Name:Corporate Gamble
 ManaCost:4 R R
 Types:Sorcery
 
-A:SP$ FlipACoin | Cost$ 4 R R | Amount$ 10 | NoCall$ True | HeadsSubAbility$ TheySacrifice | TailsSubAbility$ YouSacrifice | StackDescription$ SpellDescription | SpellDescription$ Flip ten coins. Target opponent sacrifices a permanent for each coin that comes up heads, then you sacrifice a permanent for each coin that comes up tails.
-SVar:TheySacrifice:DB$ Sacrifice | SacValid$ Permanent | Defined$ Opponent | Amount$ X
-SVar:YouSacrifice:DB$ Sacrifice | SacValid$ Permanent | Defined$ You | Amount$ X
+A:SP$ FlipCoin | Amount$ 10 | NoCall$ True | ValidTgts$ Opponent | TgtPrompt$ Select target opponent | HeadsSubAbility$ StoreHeads | TailsSubAbility$ StoreTails | SubAbility$ TheySacrifice | StackDescription$ SpellDescription | SpellDescription$ Flip ten coins. Target opponent sacrifices a permanent for each coin that comes up heads, then you sacrifice a permanent for each coin that comes up tails.
+SVar:StoreHeads:DB$ StoreSVar | SVar$ HeadsCount | Type$ CountSVar | Expression$ HeadsCount/Plus.X
+SVar:StoreTails:DB$ StoreSVar | SVar$ TailsCount | Type$ CountSVar | Expression$ TailsCount/Plus.X
+SVar:TheySacrifice:DB$ Sacrifice | Defined$ Targeted | SacValid$ Permanent | Amount$ HeadsCount | SubAbility$ YouSacrifice
+SVar:YouSacrifice:DB$ Sacrifice | Defined$ You | SacValid$ Permanent | Amount$ TailsCount | SubAbility$ CleanupHeads
+SVar:CleanupHeads:DB$ StoreSVar | SVar$ HeadsCount | Type$ Number | Expression$ 0 | SubAbility$ CleanupTails
+SVar:CleanupTails:DB$ StoreSVar | SVar$ TailsCount | Type$ Number | Expression$ 0
+
+SVar:HeadsCount:Number$0
+SVar:TailsCount:Number$
 
 Oracle:Flip ten coins. Target opponent sacrifices a permanent for each coin that comes up heads, then you sacrifice a permanent for each coin that comes up tails.
