@@ -5,7 +5,7 @@ PT:3/4
 
 K:Vanishing:5
 
-T:Mode$ CounterRemoved | ValidCard$ Card.Self | TriggerZones$ Battlefield | CounterType$ TIME | Execute$ TrigToken | TriggerDescription$ Whenever you remove a time counter from NICKNAME, create a tapped 2/2 black Zombie creature token.
+T:Mode$ CounterRemoved | ValidCard$ Card.Self | TriggerZones$ Battlefield | CounterType$ TIME | ValidPlayer$ You | Execute$ TrigToken | TriggerDescription$ Whenever you remove a time counter from NICKNAME, create a tapped 2/2 black Zombie creature token.
 
 SVar:TrigToken:DB$ Token | TokenScript$ b_2_2_zombie | TokenTapped$ True
 
