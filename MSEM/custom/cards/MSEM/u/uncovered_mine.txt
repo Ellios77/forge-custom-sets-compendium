@@ -1,0 +1,11 @@
+Name:Uncovered Mine
+ManaCost:4 B
+Types:Enchantment
+
+T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self | Execute$ TrigReturn | TriggerDescription$ When this enchantment enters and at the beginning of your upkeep, return a random card from your graveyard to your hand.
+T:Mode$ Phase | Phase$ Upkeep | ValidPlayer$ You | TriggerZones$ Battlefield | Execute$ TrigReturn | Secondary$ True | TriggerDescription$ When this enchantment enters and at the beginning of your upkeep, return a random card from your graveyard to your hand.
+SVar:TrigReturn:DB$ ChangeZone | Origin$ Graveyard | Destination$ Hand | ChangeType$ Card.YouOwn | Hidden$ True | AtRandom$ True | ChangeNum$ 1
+
+Oracle:When this enchantment enters and at the beginning of your upkeep, return a random card from your graveyard to your hand.
+
+DeckHas:Ability$Graveyard

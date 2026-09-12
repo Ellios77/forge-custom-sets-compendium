@@ -1,0 +1,12 @@
+Name:Sunset Cliffs Lawman
+ManaCost:3 R
+Types:Creature Human Mercenary
+PT:3/3
+
+T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self | Optional$ True | Execute$ TrigBounty | TriggerDescription$ When this creature enters, you may put a bounty counter on target creature.
+SVar:TrigBounty:DB$ PutCounter | CounterType$ BOUNTY | ValidTgts$ Creature | IsCurse$ True
+
+T:Mode$ ChangesZone | Origin$ Battlefield | Destination$ Graveyard | ValidCard$ Creature.counters_GE1_BOUNTY | TriggerZones$ Battlefield | Execute$ TrigDraw | TriggerDescription$ Whenever a creature with a bounty counter on it dies, each of its controller's opponents draws a card.
+SVar:TrigDraw:DB$ Draw | Defined$ Player.OpponentOf TriggeredCardController
+
+Oracle:When this creature enters, you may put a bounty counter on target creature.\nWhenever a creature with a bounty counter on it dies, each of its controller's opponents draws a card.

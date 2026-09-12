@@ -64,6 +64,7 @@ Storytime (101)                       -  98% (99/101)
   Missing cards:
     * Arpechian Champion
     * Jara Champion
+High Noon (HI12)                      -  48% (136/279)
 Kaleidoscope (KLC)                    -  100%
 Path of Shadows (PSA)                 -  99% (208/209)
   Missing cards:
@@ -98,6 +99,7 @@ Examples on how to implement custom keywords and mechanisms.
 * [Ascend](#ascend)
 * [Art of War](#art-of-war)
 * [Bleed](#bleed)
+* [Bounty](#bounty)
 * [Cryptic](#cryptic)
 * [Deception](#deception)
 * [Fabled](#fabled)
@@ -117,6 +119,7 @@ Examples on how to implement custom keywords and mechanisms.
 * [Showcase](#showcase)
 * [Storied](#storied)
 * [Torment](#torment)
+* [Vision](#vision)
 * [Wanderlust](#wanderlust)
 
 ### Aetherize
@@ -184,6 +187,26 @@ Implementation:
 ```text
 S:Mode$ AlternativeCost | ValidSA$ Spell.Self | EffectZone$ All | Cost$ 2 R | CheckSVar$ X | SVarCompare$ GE1 | Description$ Bleed {2}{R} (You may cast this spell for its bleed cost if an opponent has lost life this turn.)
 SVar:X:Count$LifeOppsLostThisTurn
+```
+
+[Jump to top](#keywords-and-mechanisms-implementation)
+
+### Bounty
+
+> The MSEM bounty counter functionality is a limited counterpart of the bounty token provided by Bounty Board, without giving out life.
+
+Bounty is defined as
+
+```text
+[something], you may post a bounty on target creature. (Put a bounty counter on target creature. It has "When this creature dies, each opponent draws a card" as long as it has a bounty counter on it.)
+```
+
+Implementation:
+
+```text
+SVar:TrigBounty:DB$ PutCounter | CounterType$ BOUNTY | IsCurse$ True | ValidTgts$ Creature | SpellDescription$ Put a bounty counter on target creature.
+T:Mode$ ChangesZone | Origin$ Battlefield | Destination$ Graveyard | ValidCard$ Creature.counters_GE1_BOUNTY | TriggerZones$ Battlefield | Execute$ TrigDraw | TriggerDescription$ Whenever a creature with a bounty counter on it dies, each of its controller's opponents draws a card.
+SVar:TrigDraw:DB$ Draw | Defined$ Player.OpponentOf TriggeredCardController
 ```
 
 [Jump to top](#keywords-and-mechanisms-implementation)
@@ -345,7 +368,7 @@ Improve {1} ({1}: Put a +1/+1 counter on this creature. This costs {1} more to a
 Implementation:
 
 ```text
-A:AB$ PutCounter | Cost$ 1 | RaiseCost$ X | CounterType$ P1P1 | CounterNum$ 1 | SorcerySpeed$ True | PrecostDesc$ Improve | SpellDescription$ ({1}: Put a +1/+1 counter on this creature. This costs {1} more to activate for each +1/+1 counter on it. Improve only as a sorcery.)
+A:AB$ PutCounter | Cost$ 1 | RaiseCost$ X | CounterType$ P1P1 | SorcerySpeed$ True | PrecostDesc$ Improve | SpellDescription$ ({1}: Put a +1/+1 counter on this creature. This costs {1} more to activate for each +1/+1 counter on it. Improve only as a sorcery.)
 SVar:X:Count$CardCounters.P1P1
 ```
 
@@ -379,7 +402,7 @@ Inscribe {2}{W} ({2}{W}: Exile this card from your hand inscribed on a creature 
 Implementation:
 
 ```text
-A:AB$ Pump | Cost$ 2 W Reveal<1/CARDNAME> | ActivationZone$ Hand | ValidTgts$ Creature.YouCtrl | TgtZone$ Battlefield | TgtPrompt$ Select target creature you control | SorcerySpeed$ True | NumAtt$ 0 | NumDef$ 0 | Duration$ Permanent | StackDescription$ SpellDescription | SubAbility$ DBExileForInscribe | PrecostDesc$ Inscribe | SpellDescription$ ({2}{W}: Exile this card from your hand inscribed on a creature you control. Whenever that creature attacks, its controller may cast a copy of the inscribed card without paying its mana cost. Inscribe only as a sorcery.)
+A:AB$ Pump | Cost$ 2 W Reveal<1/CARDNAME> | ActivationZone$ Hand | ValidTgts$ Creature.YouCtrl | TgtZone$ Battlefield | TgtPrompt$ Select target creature you control | SorcerySpeed$ True | Duration$ Permanent | StackDescription$ SpellDescription | SubAbility$ DBExileForInscribe | PrecostDesc$ Inscribe | SpellDescription$ ({2}{W}: Exile this card from your hand inscribed on a creature you control. Whenever that creature attacks, its controller may cast a copy of the inscribed card without paying its mana cost. Inscribe only as a sorcery.)
 SVar:DBExileForInscribe:DB$ ChangeZone | Defined$ Self.YouOwn | Origin$ Hand | Destination$ Exile | RememberChanged$ True | ForgetOtherRemembered$ True | SubAbility$ DBCreateInscribe
 SVar:DBCreateInscribe:DB$ Effect | Name$ Inscription Effect | ConditionDefined$ Remembered | ConditionPresent$ Card.inZoneExile | ConditionCompare$ EQ1 | RememberObjects$ Targeted | StaticAbilities$ STInscribeDesc | Triggers$ InscribeTrigger,InscribedCreatureLeaves,InscriptionRemovedFromExile | ImprintCards$ Remembered | Duration$ Permanent | SubAbility$ DBCleanup
 SVar:DBCleanup:DB$ Cleanup | ClearRemembered$ True
@@ -521,7 +544,7 @@ S:Mode$ AlternativeCost | Named$ Showcase | ValidSA$ Spell.Self | EffectZone$ Al
 SVar:DBToken:DB$ Token | ConditionCheckSVar$ AltCostPaid | TokenScript$ r_1_1_bard_cantblock | RememberTokens$ True | SubAbility$ DBEffect
 SVar:DBEffect:DB$ Effect | ConditionCheckSVar$ AltCostPaid | RememberObjects$ Remembered | ImprintCards$ Self | Triggers$ TriggerShowcaseAttack,TriggerTokenMoved | Duration$ Permanent | SubAbility$ DBExile
 SVar:TriggerShowcaseAttack:Mode$ Attacks | ValidCard$ Card.IsRemembered | Execute$ PlayShowcase | TriggerDescription$ Whenever the showcased creature attacks, you may cast a copy of EFFECTSOURCE without paying its mana cost.
-SVar:PlayShowcase:DB$ Play | Defined$ Imprinted | WithoutManaCost$ True | CopyCard$ True | Optional$ True | OptionalDecider$ You 
+SVar:PlayShowcase:DB$ Play | Defined$ Imprinted | WithoutManaCost$ True | CopyCard$ True | Optional$ True | OptionalDecider$ You
 SVar:TriggerTokenMoved:Mode$ ChangesZone | ValidCard$ Card.IsRemembered | ExcludedDestinations$ Battlefield | Execute$ ExileEffect | Static$ True
 SVar:ExileEffect:DB$ ChangeZone | Defined$ Self | Origin$ Command | Destination$ Exile
 SVar:DBExile:DB$ ChangeZone | ConditionCheckSVar$ AltCostPaid | Defined$ Self | Origin$ Stack | Destination$ Exile | SubAbility$ DBCleanup
@@ -566,6 +589,28 @@ SVar:DBLoseLifeFallback:DB$ LoseLife | LifeAmount$ 3
 
 [Jump to top](#keywords-and-mechanisms-implementation)
 
+### Vision
+
+Vision is defined as, and is often accompagnied by `Whenever this creature envisions [...]`:
+
+```text
+Vision (Whenever this or another creature you control enters, reveal the top card of your library. Then you may put that card into your graveyard.)
+```
+
+Implementation
+
+```text
+T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Creature.YouCtrl | TriggerZones$ Battlefield | Execute$ TrigVision | TriggerDescription$ Vision (Whenever this or another creature you control enters, reveal the top card of your library. Then you may put that card into your graveyard.)
+SVar:TrigVision:DB$ Dig | DigNum$ 1 | Reveal$ True | RememberRevealed$ True | ChangeNum$ All | DestinationZone$ Library | LibraryPosition$ 0 | SubAbility$ DBMayGrave
+SVar:DBMayGrave:DB$ ChangeZone | Defined$ Remembered | Origin$ Library | Destination$ Graveyard | Optional$ True | SubAbility$ DBEnvision
+SVar:DBEnvision:DB$ ImmediateTrigger | Static$ True | ConditionDefined$ Remembered | ConditionPresent$ Creature | ConditionCompare$ GE1 | Execute$ DBEnvisionSignal | SubAbility$ DBCleanup
+SVar:DBEnvisionSignal:DB$ Cleanup | Named$ Envision
+SVar:DBCleanup:DB$ Cleanup | ClearRemembered$ True
+
+T:Mode$ AbilityResolves | ValidSource$ Card.Self | ValidSpellAbility$ Ability.NamedAbilityEnvision | TriggerZones$ Battlefield | Execute$ TrigReturn | TriggerDescription$ Whenever this creature envisions a creature card, return target noncreature card from your graveyard to your hand.
+SVar:TrigReturn:DB$ ChangeZone | Origin$ Graveyard | Destination$ Hand | ValidTgts$ Card.nonCreature.YouOwn | TgtPrompt$ Select target noncreature card
+```
+
 ### Wanderlust
 
 Wanderlust is defined as:
@@ -577,7 +622,7 @@ Wanderlust — {T}: Scry 1. Activate only if you control four or more differentl
 To check for Wanderlust:
 
 ```text
-A:AB$ Scry | Cost$ T | ScryNum$ 1 | CheckSVar$ WanderLands | SVarCompare$ GE4 | SpellDescription$ Wanderlust — Scry 1. Activate only if you control four or more differently named lands.
+A:AB$ Scry | Cost$ T | CheckSVar$ WanderLands | SVarCompare$ GE4 | SpellDescription$ Wanderlust — Scry 1. Activate only if you control four or more differently named lands.
 SVar:WanderLands:Count$Valid Land.YouCtrl$DifferentCardNames
 ```
 
